@@ -15,5 +15,7 @@ void mat_transpose(Matrix *At, const Matrix *A);
 void mat_inv(Matrix *Ainv, const Matrix *A);
 void mat_eye(Matrix *I, int n);
 void mat_copy(Matrix *dst, const Matrix *src);
+int mat_equal(const Matrix *A, const Matrix *B, float tol);
+void mat_print(const Matrix *A, const char *name);
 
 #endif
