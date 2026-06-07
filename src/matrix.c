@@ -76,3 +76,97 @@ void mat_print(const Matrix *A, const char *name) {
     }
     printf("\n");
 }
+
+void mat_zero(Matrix *A, int n) {
+	A->cols=A->rows=n;
+	for (int i=0;i<n;i++) {
+		for (int j=0;j<n;j++) {
+			A->data[i][j] = 0;
+		}
+	}
+}			
+	
+	
+	
+void mat_inv(Matrix *Ainv, const Matrix *A) {
+	//calculate L as L*Ltrans = A
+	int n = A->rows;
+	
+	Matrix L;
+	mat_zero(&L,n);
+	
+	//calculate column per column
+	for (int j = 0; j < n; j++) {
+    
+		float sum = 0;
+		for (int k = 0; k < j; k++)
+			sum += L.data[j][k] * L.data[j][k];
+		L.data[j][j] = sqrtf(A->data[j][j] - sum);
+
+    
+		for (int i = j + 1; i < n; i++) {
+			sum = 0;
+			for (int k = 0; k < j; k++)
+				sum += L.data[i][k] * L.data[j][k];
+			L.data[i][j] = (A->data[i][j] - sum) / L.data[j][j];
+		}
+	}
+		
+		
+	
+	//calculate Ainv by calculating L*Y=I with Y = Ltrans*Ainv then 
+	//Ltrans*Ainv = Y
+	Matrix I;
+	mat_eye(&I,n);
+	Matrix Y;
+	mat_zero(&Y,n);
+	mat_zero(Ainv,n);
+	
+	//calculus of Y
+	for (int j=0;j<n;j++) {
+		for (int i=0;i<n;i++) {
+			float sum = 0;
+			for (int k=0;k<i;k++) {
+				sum += L.data[i][k]*Y.data[k][j];
+			}
+			if (i!=j) {
+				Y.data[i][j] = -sum/L.data[i][i];
+			}
+			else {
+				Y.data[i][j] = (1-sum)/L.data[i][i];
+			}
+		}	
+	}
+	
+	Matrix Ltrans;
+	mat_transpose(&Ltrans,&L);
+	
+	//calculus of Ainv
+	
+	for (int i=0;i<n;i++) {
+		Ainv->data[n-1][i]=Y.data[n-1][i]/Ltrans.data[n-1][n-1];
+		for (int k=n-2;k>=0;k--) {
+			float sum = 0;
+			for (int j=k+1;j<n;j++) {
+				sum += Ainv->data[j][i]*Ltrans.data[k][j];
+			}
+			Ainv->data[k][i] = (Y.data[k][i]-sum)/Ltrans.data[k][k];
+		}	
+	}
+}
+	
+	
+	
+		
+			
+				
+			
+			
+	
+	
+	
+	
+	
+	
+	
+	

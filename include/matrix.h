@@ -17,5 +17,6 @@ void mat_eye(Matrix *I, int n);
 void mat_copy(Matrix *dst, const Matrix *src);
 int mat_equal(const Matrix *A, const Matrix *B, float tol);
 void mat_print(const Matrix *A, const char *name);
+void mat_zero(Matrix* A,int n);
 
 #endif
