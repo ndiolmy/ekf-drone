@@ -77,10 +77,10 @@ void mat_print(const Matrix *A, const char *name) {
     printf("\n");
 }
 
-void mat_zero(Matrix *A, int n) {
-	A->cols=A->rows=n;
+void mat_zero(Matrix *A, int n,int m) {
+	A->cols=m, A->rows=n;
 	for (int i=0;i<n;i++) {
-		for (int j=0;j<n;j++) {
+		for (int j=0;j<m;j++) {
 			A->data[i][j] = 0;
 		}
 	}
@@ -93,7 +93,7 @@ void mat_inv(Matrix *Ainv, const Matrix *A) {
 	int n = A->rows;
 	
 	Matrix L;
-	mat_zero(&L,n);
+	mat_zero(&L,n,n	);
 	
 	//calculate column per column
 	for (int j = 0; j < n; j++) {
@@ -119,8 +119,8 @@ void mat_inv(Matrix *Ainv, const Matrix *A) {
 	Matrix I;
 	mat_eye(&I,n);
 	Matrix Y;
-	mat_zero(&Y,n);
-	mat_zero(Ainv,n);
+	mat_zero(&Y,n,n);
+	mat_zero(Ainv,n,n);
 	
 	//calculus of Y
 	for (int j=0;j<n;j++) {
@@ -156,7 +156,17 @@ void mat_inv(Matrix *Ainv, const Matrix *A) {
 }
 	
 	
-	
+void mat_copy(Matrix *dst, const Matrix* src) {
+	int n= src->rows;
+	int m= src->cols;
+	dst->rows = n;
+	dst->cols = m;
+	for (int i=0; i<n; i++) {
+		for (int j=0; j<m; j++) {
+			dst->data[i][j] = src->data[i][j];
+		}
+	}
+}
 		
 			
 				

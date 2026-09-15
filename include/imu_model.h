@@ -38,7 +38,7 @@ void imu_f(Matrix *x_out, const Matrix *x, const Matrix *u);
 
 /* Jacobienne du modèle dynamique : F = df/dx évaluée en (x, u)
  * Matrice 9x9 calculée analytiquement */
-void imu_F_jac(Matrix *F, const Matrix *x, const Matrix *u);
+//void imu_F_jac(Matrix *F, const Matrix *x, const Matrix *u);
 
 /* Jacobienne par différences finies — alternative numérique à imu_F_jac
  * Plus lente mais utile pour valider la version analytique */

@@ -26,7 +26,7 @@ typedef struct {
     /* f  : propagation d'état    x_new = f(x, u)           */
     void (*f)    (Matrix *x_out, const Matrix *x, const Matrix *u);
     /* F_jac : Jacobienne de f    F = df/dx évaluée en x    */
-    void (*F_jac)(Matrix *F,     const Matrix *x, const Matrix *u);
+    void (*F_jac)(Matrix *F,     const Matrix *x, const Matrix *u, float eps);
 
     /* --- Modèle d'observation (correction) --- */
     /* h  : observation prédite   z_pred = h(x)             */
@@ -43,7 +43,7 @@ void ekf_init(EKF *ekf, const Matrix *x0, const Matrix *P0);
 
 /* Étape de prédiction — appelée à chaque tick IMU (~200 Hz)
  *   u : vecteur commande IMU [ax, ay, az, p, q, r] (6 x 1) */
-void ekf_predict(EKF *ekf, const Matrix *u);
+void ekf_predict(EKF *ekf, const Matrix *u, float eps);
 
 /* Étape de correction — appelée à chaque mesure capteur (~10 Hz)
  *   z : vecteur mesure brut (dimension dépend du capteur)  */
