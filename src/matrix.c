@@ -3,13 +3,14 @@
 #include <stdio.h>
 
 void mat_add(Matrix* C, const Matrix* A, const Matrix* B) {
+	C->rows = A->rows;
+	C->cols = A->cols;
 	for(int i=0;i<C->rows;i++){
 		for(int j=0;j<C->cols;j++) {
 			C->data[i][j] = A->data[i][j] + B->data[i][j];
 		}
 	}
-	C->rows = A->rows;
-	C->cols = A->cols;
+	
 }		
 	
 void mat_sub(Matrix* C, const Matrix* A, const Matrix* B) {
@@ -39,13 +40,13 @@ void mat_mul(Matrix* C, const Matrix* A, const Matrix* B) {
 	
 
 void mat_transpose(Matrix* At, const Matrix* A) {
-	for(int i=0;i<A->rows;i++){
-		for(int j=0;j<A->cols;j++) {
+	At->rows = A->cols;
+	At->cols = A->rows;		
+	for(int i=0;i<At->rows;i++){
+		for(int j=0;j<At->cols;j++) {
 			At->data[i][j] = A->data[j][i];
 		}
 	}		
-	At->rows = A->rows;
-	At->cols = A->cols;		
 }	
 	
 void mat_eye(Matrix* I, int n) {
