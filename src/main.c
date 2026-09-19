@@ -136,6 +136,6 @@ int main(void) {
 
     fclose(f);
     printf("Simulation terminée — résultats dans results.csv\n");
-    printf("Lance : python3 scripts/plot_results.py\n");
+    printf("Lance : python3 plot_results.py\n");
     return 0;
 }

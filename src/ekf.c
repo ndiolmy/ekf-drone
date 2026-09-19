@@ -54,7 +54,7 @@ void ekf_update(EKF *ekf, const Matrix *z) {
     
     //mise à jour de P
     Matrix C, D, I;
-    mat_eye(&I, D.cols);
+    mat_eye(&I, K.rows);
     mat_mul(&C, &K, &H);
     mat_sub(&D,&I , &C);
     mat_mul(&ekf->P, &D, &ekf->P);   

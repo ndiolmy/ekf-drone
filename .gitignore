@@ -1,6 +1,22 @@
+# Compilés
 *.o
 *.obj
 *.exe
 *.out
 *.a
 *.so
+
+# Binaire de l'exécutable (ajoute le nom exact)
+ekf_drone
+
+# Fichiers générés par la simulation
+results.csv
+results.png
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+*.swp
