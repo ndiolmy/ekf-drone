@@ -133,7 +133,7 @@ int main(void) {
     }
 
     fclose(f);
-    printf("Simulation ended — results dans results.csv\n");
+    printf("Simulation ended : results in results.csv\n");
     printf("run : python3 plot_results.py\n");
     return 0;
 }
