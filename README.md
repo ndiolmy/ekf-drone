@@ -43,8 +43,8 @@ GPS  (~ 10 Hz) ──▶  ekf_update()    K  = P⁻·Hᵀ·S⁻¹     x̂  = x̂
 ## Build & run
 
 ```bash
-make                               # build simulation
-./ekf_drone                        # run — outputs results.csv
+make ekf_drone                     # build simulation
+./ekf_drone or make run            # run — outputs results.csv
 python3 scripts/plot_results.py    # plot results
 make test                          # run matrix unit tests
 make clean                         # remove build artifacts

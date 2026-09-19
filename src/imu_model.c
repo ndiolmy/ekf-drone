@@ -28,12 +28,12 @@ void imu_f(Matrix *x_out, const Matrix *x, const Matrix *u) {
     x_out->data[1][0] = py + vy * dt;
     x_out->data[2][0] = pz + vz * dt;
 
-    // vitesse
+    // velocities
     x_out->data[3][0] = vx + ax * dt;
     x_out->data[4][0] = vy + ay * dt;
     x_out->data[5][0] = vz + (az - GRAVITY) * dt;
 
-    // angles d'Euler
+    // Euler angles
     x_out->data[6][0] = phi + (p + q * sp * tt + r * cp * tt) * dt;
     x_out->data[7][0] = tht + (q * cp - r * sp) * dt;
     x_out->data[8][0] = psi + (q * sp + r * cp) / ct * dt;

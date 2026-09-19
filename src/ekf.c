@@ -33,26 +33,26 @@ void ekf_update(EKF *ekf, const Matrix *z) {
     
     ekf->H_jac(&H, &ekf->x);
     
-    //matrice d'innovation S
+    //innovation matrix S
     Matrix H_trans, X, Y, S;
     mat_transpose(&H_trans, &H);
     mat_mul(&Y, &ekf->P, &H_trans);
     mat_mul(&X, &H, &Y);
     mat_add(&S, &X, &ekf->R);
     
-    //gain Kalman K
+    //Kalman gain K
     Matrix K, A, Sinv;
     mat_inv(&Sinv, &S);
     mat_mul(&A, &H_trans, &Sinv);
     mat_mul(&K, &ekf->P, &A);
     
-    //mise à jour de l'état
+    //state update
     Matrix x_new, B;
     mat_mul(&B, &K, &y);
     mat_add(&x_new, &ekf->x, &B);
     ekf->x = x_new;
     
-    //mise à jour de P
+    //P update
     Matrix C, D, I;
     mat_eye(&I, K.rows);
     mat_mul(&C, &K, &H);

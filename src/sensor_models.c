@@ -27,7 +27,7 @@ void gps_R_init(Matrix *R, float sigma_pos) {
     R->data[0][0] = v; R->data[1][1] = v; R->data[2][2] = v;
 }
 
-/* Baromètre */
+/* Barometer */
 void baro_h(Matrix *z_pred, const Matrix *x) {
     z_pred->data[0][0] = x->data[2][0];
     z_pred->rows = 1; z_pred->cols = 1;
@@ -42,7 +42,7 @@ void baro_R_init(Matrix *R, float sigma_alt) {
     R->data[0][0] = sigma_alt * sigma_alt;
 }
 
-/* Magnétomètre */
+/* Magnetometer */
 void mag_h(Matrix *z_pred, const Matrix *x) {
     z_pred->data[0][0] = x->data[8][0];
     z_pred->rows = 1; z_pred->cols = 1;

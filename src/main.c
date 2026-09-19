@@ -10,7 +10,7 @@
 #include "sim.h"
 
 /* ------------------------------------------------------------------ */
-/* Générateur de bruit gaussien (Box-Muller)                          */
+/* Gaussian noise generator (Box-Muller)                          */
 /* ------------------------------------------------------------------ */
 static float randn(float std) {
     float u1 = (float)(rand() + 1) / ((float)RAND_MAX + 1.0f);
@@ -19,16 +19,16 @@ static float randn(float std) {
 }
 
 /* ------------------------------------------------------------------ */
-/* Trajectoire vraie : cercle horizontal à altitude constante         */
+/* True trajectory : circle at constant altitude         */
 /* ------------------------------------------------------------------ */
 static void true_state(float t, Matrix *x_true) {
-    float omega = 0.2f;   /* rad/s — vitesse angulaire du cercle */
+    float omega = 0.2f;   /* rad/s — circle's angular velocity */
     float R     = 10.0f;  /* m     — rayon */
 
     mat_zero(x_true, 9, 1);
     x_true->data[0][0] = R * cosf(omega * t);          /* px */
     x_true->data[1][0] = R * sinf(omega * t);          /* py */
-    x_true->data[2][0] = 5.0f;                         /* pz — altitude fixe */
+    x_true->data[2][0] = 5.0f;                         /* pz — constant altitude  */
     x_true->data[3][0] = -R * omega * sinf(omega * t); /* vx */
     x_true->data[4][0] =  R * omega * cosf(omega * t); /* vy */
     x_true->data[5][0] = 0.0f;                         /* vz */
@@ -43,69 +43,69 @@ static void true_state(float t, Matrix *x_true) {
 int main(void) {
     srand((unsigned)time(NULL));
 
-    /* --- Initialisation EKF --- */
+    /* --- EKF Initialization --- */
     EKF ekf;
 
-    /* Branchement des modèles */
+    /* Models plugging */
     ekf.f     = imu_f;
-    ekf.F_jac = imu_F_jac_numerical;  /* différences finies pour l'instant */
+    ekf.F_jac = imu_F_jac_numerical;  /* for now finite differences */
     ekf.h     = gps_h;
     ekf.H_jac = gps_H_jac;
 
 	float eps = 1e-4f;
-    /* État initial — on part de la vraie position avec un peu d'erreur */
+    /* Initial state — start from the true position with a little error */
     Matrix x0, P0;
     true_state(0.0f, &x0);
-    x0.data[0][0] += randn(1.0f);  /* erreur initiale position */
+    x0.data[0][0] += randn(1.0f);  /* position initial error */
     x0.data[1][0] += randn(1.0f);
 
-    /* P0 — incertitude initiale */
+    /* P0 — initial uncertainty */
     mat_eye(&P0, 9);
     for (int i = 0; i < 9; i++)
-        P0.data[i][i] = (i < 3) ? 5.0f : 1.0f;  /* plus d'incertitude sur position */
+        P0.data[i][i] = (i < 3) ? 5.0f : 1.0f;  /* more uncertainties on position */
 
-    /* Q — bruit de processus */
+    /* Q — process noise */
     mat_zero(&ekf.Q, 9, 9);
-    for (int i = 3; i < 6; i++) ekf.Q.data[i][i] = 0.1f;   /* vitesse */
+    for (int i = 3; i < 6; i++) ekf.Q.data[i][i] = 0.1f;   /* velocities */
     for (int i = 6; i < 9; i++) ekf.Q.data[i][i] = 0.01f;  /* angles */
 
-    /* R — bruit GPS */
+    /* R — GPS noise*/
     gps_R_init(&ekf.R, 2.5f);  /* sigma_pos = 2.5 m */
 
     ekf_init(&ekf, &x0, &P0);
 
-    /* --- Fichier de sortie pour plot Python --- */
+    /* --- Output for Python plot --- */
     FILE *f = fopen("results.csv", "w");
-    if (!f) { fprintf(stderr, "Impossible d'ouvrir results.csv\n"); return 1; }
+    if (!f) { fprintf(stderr, "Impossible to open results.csv\n"); return 1; }
     fprintf(f, "t,px_true,py_true,pz_true,px_est,py_est,pz_est,px_gps,py_gps,pz_gps\n");
 
-    /* --- Boucle de simulation --- */
-    int gps_rate = 20;  /* 1 correction GPS toutes les 20 prédictions = 10 Hz */
+    /* --- Simulation loop --- */
+    int gps_rate = 20;  /* 1 GPS correction every 20 predictions = 10 Hz */
 
     for (int k = 0; k < SIM_STEPS; k++) {
         float t = k * IMU_DT;
 
-        /* État vrai à t et t+dt pour calculer l'IMU simulée */
+        /* true state at t and t+dt to calculate the simulated IMU */
         Matrix x_true, x_next;
         true_state(t,           &x_true);
         true_state(t + IMU_DT,  &x_next);
 
-        /* --- Commande IMU simulée (accélérations + vitesses angulaires bruitées) --- */
+        /* --- simulated IMU command (accelerations + angular velocities with noise) --- */
         Matrix u;
         mat_zero(&u, 6, 1);
-        /* accélérations : dérivée numérique de la vitesse + bruit */
+        /* accelerations : numerical differenciation of velocities + noise */
         u.data[0][0] = (x_next.data[3][0] - x_true.data[3][0]) / IMU_DT + randn(0.1f);
         u.data[1][0] = (x_next.data[4][0] - x_true.data[4][0]) / IMU_DT + randn(0.1f);
         u.data[2][0] = (x_next.data[5][0] - x_true.data[5][0]) / IMU_DT + GRAVITY + randn(0.05f);
-        /* vitesses angulaires + bruit */
-        u.data[3][0] = randn(0.01f);  /* p — drone en vol plat, pas de roulis */
-        u.data[4][0] = randn(0.01f);  /* q */
-        u.data[5][0] = 0.2f + randn(0.01f);  /* r — rotation yaw */
+        /* angular velocities + noise */
+        u.data[3][0] = randn(0.01f);  /* p — roll velocity */
+        u.data[4][0] = randn(0.01f);  /* q - pitch velocity*/
+        u.data[5][0] = 0.2f + randn(0.01f);  /* r — yaw velocity */
 
-        /* --- Prédiction IMU (~200 Hz) --- */
+        /* --- IMU prediction (~200 Hz) --- */
         ekf_predict(&ekf, &u,eps);
 
-        /* --- Correction GPS (~10 Hz) --- */
+        /* --- GPS correction (~10 Hz) --- */
         float px_gps = 0.0f, py_gps = 0.0f, pz_gps = 0.0f;
         if (k % gps_rate == 0) {
             Matrix z_gps;
@@ -114,7 +114,6 @@ int main(void) {
             z_gps.data[1][0] = x_true.data[1][0] + randn(2.5f);
             z_gps.data[2][0] = x_true.data[2][0] + randn(2.5f);
 
-            /* rebrancher h/H_jac sur GPS si nécessaire */
             ekf.h     = gps_h;
             ekf.H_jac = gps_H_jac;
             ekf_update(&ekf, &z_gps);
@@ -124,7 +123,6 @@ int main(void) {
             pz_gps = z_gps.data[2][0];
         }
 
-        /* --- Log toutes les 10 étapes pour ne pas surcharger le CSV --- */
         if (k % 10 == 0) {
             fprintf(f, "%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f\n",
                 t,
@@ -135,7 +133,7 @@ int main(void) {
     }
 
     fclose(f);
-    printf("Simulation terminée — résultats dans results.csv\n");
-    printf("Lance : python3 plot_results.py\n");
+    printf("Simulation ended — results dans results.csv\n");
+    printf("run : python3 plot_results.py\n");
     return 0;
 }
